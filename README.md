@@ -36,23 +36,23 @@ Well, as always, it depends. If your results match mine, you might see
 something like this:
 
 ```
-$ ls -hs ../test/big256.txt
-1.6G ../test/big256.txt
+$ ls -hs ../data/big256.txt
+1.6G ../data/big256.txt
 $ /usr/bin/time -f "%E" /bin/cat ../data/big256.txt >/dev/null
 0:00.17
-$ /usr/bin/time -f "%E" /usr/bin/wc ../test/big256.txt 
-  32884992  280497920 1661098496 ../test/big256.txt
+$ /usr/bin/time -f "%E" /usr/bin/wc ../data/big256.txt 
+  32884992  280497920 1661098496 ../data/big256.txt
 0:06.55
-$ /usr/bin/time -f "%E" ./bsd-wc ../test/big256.txt 
- 32884992 280497920 1661098496 ../test/big256.txt
+$ /usr/bin/time -f "%E" ./bsd-wc ../data/big256.txt 
+ 32884992 280497920 1661098496 ../data/big256.txt
 0:04.18
-$ /usr/bin/time -f "%E" ./fastlwc ../test/big256.txt 
- 32884992 280497920 1661098496 ../test/big256.txt
+$ /usr/bin/time -f "%E" ./fastlwc ../data/big256.txt 
+ 32884992 280497920 1661098496 ../data/big256.txt
 0:00.29
-$ /usr/bin/time -f "%E" ./fastlwc-mmap ../test/big256.txt 
- 32884992 280497920 1661098496 ../test/big256.txt
+$ /usr/bin/time -f "%E" ./fastlwc-mmap ../data/big256.txt 
+ 32884992 280497920 1661098496 ../data/big256.txt
 0:00.29
-$ /usr/bin/time -f "%E" ./fastlwc-mmap-mt ../test/big256.txt 
- 32884992 280497920 1661098496 ../test/big256.txt
+$ /usr/bin/time -f "%E" ./fastlwc-mmap-mt ../data/big256.txt 
+ 32884992 280497920 1661098496 ../data/big256.txt
 0:00.13
 ```
