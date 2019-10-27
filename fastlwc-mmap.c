@@ -35,7 +35,7 @@ struct lwcount count(unsigned char *restrict addr, size_t remaining_size)
 		int words = SIMD_MASK_POPCNT(wbits)
 		            - SIMD_MASK_POPCNT(wbits & (wbits << 1))
 		            - (wcontinue && (wbits & 1));
-		wcontinue = wbits & (1u << (sizeof(SIMD_VEC) - 1));
+		wcontinue = wbits & (1ul << (sizeof(SIMD_VEC) - 1));
 		wcount += words;
 
 		remaining_size -= sizeof(SIMD_VEC);
