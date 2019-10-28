@@ -38,6 +38,7 @@ something like this:
 ```
 $ ls -hs ../data/big256.txt
 1.6G ../data/big256.txt
+$ export LC_ALL=C LANG=C
 $ /usr/bin/time -f "%E" /bin/cat ../data/big256.txt >/dev/null
 0:00.17
 $ /usr/bin/time -f "%E" /usr/bin/wc ../data/big256.txt 
