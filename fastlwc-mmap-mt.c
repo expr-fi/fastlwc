@@ -37,16 +37,14 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 			                  : false);
 			SIMD_VEC *vp = (SIMD_VEC*)&addr[block * BLOCK_SIZE];
 			for (int j = 0; j < SLICES_PER_BLOCK; ++j, ++vp) {
-				SIMD_VEC gt = SIMD_CMPGT8(*vp, SIMD_SET8(8)),
-				         lt = SIMD_CMPGT8(SIMD_SET8(14), *vp),
+				SIMD_VEC lws = SIMD_CMPGT8(SIMD_ADD8(*vp, SIMD_SET8(113)),
+				                           SIMD_SET8(121)),
 				         eqnl = SIMD_CMPEQ8(*vp, SIMD_SET8('\n')),
 				         eqsp = SIMD_CMPEQ8(*vp, SIMD_SET8(' '));
 				lcount += SIMD_MASK_POPCNT(SIMD_CMASK8(eqnl));
-				SIMD_VEC eqws = SIMD_OR(eqsp, SIMD_AND(gt, lt));
+				SIMD_VEC eqws = SIMD_OR(eqsp, lws);
 				SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
-				int words = SIMD_MASK_POPCNT(wbits)
-				            - SIMD_MASK_POPCNT(wbits & (wbits << 1))
-				            - (wcontinue && (wbits & 1));
+				int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
 				wcontinue = wbits & (1ul << (sizeof(SIMD_VEC) - 1));
 				wcount += words;
 			}
@@ -59,16 +57,14 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 	                  : false);
 	SIMD_VEC *vp = (SIMD_VEC*)&addr[blocks * BLOCK_SIZE];
 	while (remaining_size >= sizeof(SIMD_VEC)) {
-		SIMD_VEC gt = SIMD_CMPGT8(*vp, SIMD_SET8(8)),
-		         lt = SIMD_CMPGT8(SIMD_SET8(14), *vp),
+		SIMD_VEC lws = SIMD_CMPGT8(SIMD_ADD8(*vp, SIMD_SET8(113)),
+		                           SIMD_SET8(121)),
 		         eqnl = SIMD_CMPEQ8(*vp, SIMD_SET8('\n')),
 		         eqsp = SIMD_CMPEQ8(*vp, SIMD_SET8(' '));
 		lcount += SIMD_MASK_POPCNT(SIMD_CMASK8(eqnl));
-		SIMD_VEC eqws = SIMD_OR(eqsp, SIMD_AND(gt, lt));
+		SIMD_VEC eqws = SIMD_OR(eqsp, lws);
 		SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
-		int words = SIMD_MASK_POPCNT(wbits)
-		            - SIMD_MASK_POPCNT(wbits & (wbits << 1))
-		            - (wcontinue && (wbits & 1));
+		int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
 		wcontinue = wbits & (1ul << (sizeof(SIMD_VEC) - 1));
 		wcount += words;
 
