@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 			int words = SIMD_MASK_POPCNT(wbits)
 			            - SIMD_MASK_POPCNT(wbits & (wbits << 1))
 			            - (wcontinue && (wbits & 1));
-			wcontinue = wbits & (1u << (sizeof(SIMD_VEC) - 1));
+			wcontinue = wbits & (1ul << (sizeof(SIMD_VEC) - 1));
 			wcount += words;
 
 			rem -= sizeof(SIMD_VEC);
