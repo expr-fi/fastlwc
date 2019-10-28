@@ -32,9 +32,7 @@ struct lwcount count(unsigned char *restrict addr, size_t remaining_size)
 		lcount += SIMD_MASK_POPCNT(SIMD_CMASK8(eqnl));
 		SIMD_VEC eqws = SIMD_OR(eqsp, lws);
 		SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
-		int words = SIMD_MASK_POPCNT(wbits)
-		            - SIMD_MASK_POPCNT(wbits & (wbits << 1))
-		            - (wcontinue && (wbits & 1));
+		int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
 		wcontinue = wbits & (1u << (sizeof(SIMD_VEC) - 1));
 		wcount += words;
 
