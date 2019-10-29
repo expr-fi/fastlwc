@@ -5,19 +5,7 @@
 #include <nmmintrin.h>
 
 
-#if defined(__AVX512F__) && defined(__AVX512BW__)
-#  include <immintrin.h>
-#  define SIMD_VEC           __m512i
-#  define SIMD_MASK          uint64_t
-#  define SIMD_SET8          _mm512_set1_epi8
-#  define SIMD_CMPGT8(X, Y)  _mm512_movm_epi8(_mm512_cmpgt_epi8_mask(X, Y))
-#  define SIMD_CMPEQ8(X, Y)  _mm512_movm_epi8(_mm512_cmpeq_epi8_mask(X, Y))
-#  define SIMD_ADD8          _mm512_add_epi8
-#  define SIMD_AND           _mm512_and_si512
-#  define SIMD_OR            _mm512_or_si512
-#  define SIMD_CMASK8(X)     _cvtmask64_u64(_mm512_movepi8_mask(X))
-#  define SIMD_MASK_POPCNT   _mm_popcnt_u64
-#elif defined(__AVX2__)
+#if defined(__AVX2__)
 #  include <immintrin.h>
 #  define SIMD_VEC           __m256i
 #  define SIMD_MASK          uint32_t
