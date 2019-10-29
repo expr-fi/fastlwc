@@ -45,7 +45,7 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 				SIMD_VEC eqws = SIMD_OR(eqsp, lws);
 				SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
 				int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
-				wcontinue = wbits & (1ul << (sizeof(SIMD_VEC) - 1));
+				wcontinue = wbits & ((SIMD_MASK)1 << (sizeof(SIMD_VEC) - 1));
 				wcount += words;
 			}
 		}
@@ -65,7 +65,7 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 		SIMD_VEC eqws = SIMD_OR(eqsp, lws);
 		SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
 		int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
-		wcontinue = wbits & (1ul << (sizeof(SIMD_VEC) - 1));
+		wcontinue = wbits & ((SIMD_MASK)1 << (sizeof(SIMD_VEC) - 1));
 		wcount += words;
 
 		remaining_size -= sizeof(SIMD_VEC);
