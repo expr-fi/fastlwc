@@ -49,11 +49,11 @@ $ /usr/bin/time -f "%E" ./bsd-wc ../data/big256.txt
 0:04.18
 $ /usr/bin/time -f "%E" ./fastlwc ../data/big256.txt 
  32884992 280497920 1661098496 ../data/big256.txt
-0:00.29
+0:00.25
 $ /usr/bin/time -f "%E" ./fastlwc-mmap ../data/big256.txt 
  32884992 280497920 1661098496 ../data/big256.txt
-0:00.29
+0:00.25
 $ /usr/bin/time -f "%E" ./fastlwc-mmap-mt ../data/big256.txt 
  32884992 280497920 1661098496 ../data/big256.txt
-0:00.13
+0:00.12
 ```
