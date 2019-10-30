@@ -85,19 +85,21 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	void *addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED | MAP_NORESERVE,
-	                  fd, 0);
-	if (addr == MAP_FAILED) {
-		perror("fastlwc-mmap: mmap");
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
-
-	struct lwcount lwc = count(addr, st.st_size);
+	struct lwcount lwc;
+	if (st.st_size > 0) {
+		void *addr = mmap(NULL, st.st_size, PROT_READ,
+		                  MAP_SHARED | MAP_NORESERVE, fd, 0);
+		if (addr == MAP_FAILED) {
+			perror("fastlwc-mmap: mmap");
+			close(fd);
+			exit(EXIT_FAILURE);
+		}
+		lwc = count(addr, st.st_size);
+		munmap(addr, st.st_size);
+	} else
+		lwc = (struct lwcount){ 0, 0 };
 
 	printf(" %7zu %7zu %7zu %s\n", lwc.lcount, lwc.wcount, (size_t)st.st_size,
 	                               argv[1]);
-
-	munmap(addr, st.st_size);
 	close(fd);
 }
