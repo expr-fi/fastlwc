@@ -23,7 +23,7 @@ avx512/%: ../%.c ../simd.h
 	@mkdir -p avx512
 	$(CC) $(CFLAGS_AVX512) $< -o $@ $(LDFLAGS)
 
-bin/bsd-wc: ../bsd-wc.c ../simd.h
+bin/bsd-wc: ../bsd-wc.c
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
