@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <omp.h>
 #include "simd.h"
@@ -32,60 +33,33 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 		int tid = omp_get_thread_num(),
 		    threads = omp_get_num_threads();
 		for (size_t i = 0, block; (block = i * threads + tid) < blocks; ++i) {
-			bool wcontinue = (block > 0
-			                  ? !isspace(addr[block * BLOCK_SIZE - 1])
-			                  : false);
+			wcount_state_t state = (block > 0 && !isspace(addr[block * BLOCK_SIZE - 1])
+			                        ? WCOUNT_CONTINUE : WCOUNT_BOUNDARY);
 			SIMD_VEC *vp = (SIMD_VEC*)&addr[block * BLOCK_SIZE];
 			for (int j = 0; j < SLICES_PER_BLOCK; ++j, ++vp) {
-				SIMD_VEC lws = SIMD_CMPGT8(SIMD_ADD8(*vp, SIMD_SET8(113)),
-				                           SIMD_SET8(121)),
-				         eqnl = SIMD_CMPEQ8(*vp, SIMD_SET8('\n')),
-				         eqsp = SIMD_CMPEQ8(*vp, SIMD_SET8(' '));
-				lcount += SIMD_MASK_POPCNT(SIMD_CMASK8(eqnl));
-				SIMD_VEC eqws = SIMD_OR(eqsp, lws);
-				SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
-				int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
-				wcontinue = wbits & ((SIMD_MASK)1 << (sizeof(SIMD_VEC) - 1));
-				wcount += words;
+				wcount += count_words(*vp, &state);
+				lcount += count_lines(*vp);
 			}
 		}
 	}
 
-	size_t remaining_size = size - blocks * BLOCK_SIZE;
-	bool wcontinue = (blocks > 0
-	                  ? !isspace(addr[blocks * BLOCK_SIZE - 1])
-	                  : false);
+	size_t rem = size - blocks * BLOCK_SIZE;
+	wcount_state_t state = (blocks > 0 && !isspace(addr[blocks * BLOCK_SIZE - 1])
+	                        ? WCOUNT_CONTINUE : WCOUNT_BOUNDARY);
 	SIMD_VEC *vp = (SIMD_VEC*)&addr[blocks * BLOCK_SIZE];
-	while (remaining_size >= sizeof(SIMD_VEC)) {
-		SIMD_VEC lws = SIMD_CMPGT8(SIMD_ADD8(*vp, SIMD_SET8(113)),
-		                           SIMD_SET8(121)),
-		         eqnl = SIMD_CMPEQ8(*vp, SIMD_SET8('\n')),
-		         eqsp = SIMD_CMPEQ8(*vp, SIMD_SET8(' '));
-		lcount += SIMD_MASK_POPCNT(SIMD_CMASK8(eqnl));
-		SIMD_VEC eqws = SIMD_OR(eqsp, lws);
-		SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
-		int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
-		wcontinue = wbits & ((SIMD_MASK)1 << (sizeof(SIMD_VEC) - 1));
-		wcount += words;
-
-		remaining_size -= sizeof(SIMD_VEC);
+	while (rem >= sizeof(SIMD_VEC)) {
+		wcount += count_words(*vp, &state);
+		lcount += count_lines(*vp);
+		rem -= sizeof(SIMD_VEC);
 		vp++;
 	}
 
-	addr = (unsigned char*)vp;
-	while (remaining_size) {
-		if (!isspace(*addr)) {
-			if (!wcontinue) {
-				wcount++;
-				wcontinue = true;
-			}
-		} else {
-			if (*addr == '\n')
-				lcount++;
-			wcontinue = false;
-		}
-		addr++;
-		remaining_size--;
+	if (rem > 0) {
+		SIMD_VEC buf;
+		memcpy(&buf, vp, rem);
+		memset((char*)&buf + rem, ' ', sizeof(SIMD_VEC) - rem);
+		wcount += count_words(buf, &state);
+		lcount += count_lines(buf);
 	}
 
 	return (struct lwcount){ lcount, wcount };

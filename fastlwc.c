@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	unsigned char *buf = aligned_alloc(sizeof(SIMD_VEC), BUFSIZE);
+	SIMD_VEC *buf = aligned_alloc(sizeof(SIMD_VEC), BUFSIZE);
 	if (!buf) {
 		perror("fastlwc: alloc");
 		exit(EXIT_FAILURE);
@@ -41,10 +41,9 @@ int main(int argc, char *argv[])
 	       wcount = 0,
 	       ccount = 0,
 	       rem = 0;
-	bool wcontinue = false;
+	wcount_state_t state = WCOUNT_BOUNDARY;
 
-	SIMD_VEC *vp = (SIMD_VEC*)buf;
-	while ((len = read(fd, buf + rem, BUFSIZE - rem))) {
+	while ((len = read(fd, (char*)buf + rem, BUFSIZE - rem))) {
 		if (len < 0) {
 			perror("fastlwc: read");
 			exit(EXIT_FAILURE);
@@ -52,42 +51,25 @@ int main(int argc, char *argv[])
 
 		rem += len;
 		ccount += len;
-		vp = (SIMD_VEC*)buf;
 
+		SIMD_VEC *vp = buf;
 		while (rem >= sizeof(SIMD_VEC)) {
-			SIMD_VEC lws = SIMD_CMPGT8(SIMD_ADD8(*vp, SIMD_SET8(113)),
-			                           SIMD_SET8(121)),
-			         eqnl = SIMD_CMPEQ8(*vp, SIMD_SET8('\n')),
-			         eqsp = SIMD_CMPEQ8(*vp, SIMD_SET8(' '));
-			lcount += SIMD_MASK_POPCNT(SIMD_CMASK8(eqnl));
-			SIMD_VEC eqws = SIMD_OR(eqsp, lws);
-			SIMD_MASK wbits = ~SIMD_CMASK8(eqws);
-			int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + wcontinue));
-			wcontinue = wbits & ((SIMD_MASK)1 << (sizeof(SIMD_VEC) - 1));
-			wcount += words;
+			wcount += count_words(*vp, &state);
+			lcount += count_lines(*vp);
 
 			rem -= sizeof(SIMD_VEC);
 			vp++;
 		}
 
-		if (rem)
+		if (rem) // move rem leftover bytes to start of buf
 			memmove(buf, vp, rem);
 	}
 
-	unsigned char *p = (unsigned char*)vp;
-	while (rem) {
-		if (!isspace(*p)) {
-			if (!wcontinue) {
-				wcount++;
-				wcontinue = true;
-			}
-		} else {
-			if (*p == '\n')
-				lcount++;
-			wcontinue = false;
-		}
-		p++;
-		rem--;
+	if (rem) {
+		memset((char*)buf + rem, ' ', sizeof(SIMD_VEC) - rem);
+		SIMD_VEC *vp = buf;
+		wcount += count_words(*vp, &state);
+		lcount += count_lines(*vp);
 	}
 
 	printf(" %7zu %7zu %7zu %s\n", lcount, wcount, ccount, argv[1]);

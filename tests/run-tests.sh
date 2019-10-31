@@ -15,7 +15,7 @@ rm_tmpdir() {
 }
 
 sde_arch() {
-	if ! test -x "$SDE"; then	
+	if ! test -x "$SDE"; then
 		if ! which sde >/dev/null; then
 			echo "error: sde not found in PATH and SDE environment variable not set"
 			exit 1
@@ -23,7 +23,7 @@ sde_arch() {
 			SDE=sde
 		fi
 	fi
-	
+
 	for f in "$1"/*; do
 		rm -f "$tmpdir/cmp"
 		for input in data/*; do

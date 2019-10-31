@@ -3,13 +3,13 @@ TARGETS = bin/bsd-wc bin/fastlwc bin/fastlwc-mmap bin/fastlwc-mmap-mt
 
 all: $(TARGETS)
 
-bin/fastlwc-mmap-mt: fastlwc-mmap-mt.c simd.h
+bin/fastlwc-mmap-mt: fastlwc-mmap-mt.c simd.c simd.h
 	@mkdir -p bin
-	$(CC) $(CFLAGS) -fopenmp $< -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) -fopenmp $< simd.c -o $@ $(LDFLAGS)
 
-bin/%: %.c simd.h
+bin/%: %.c simd.c simd.h
 	@mkdir -p bin
-	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $< simd.c -o $@ $(LDFLAGS)
 
 .PHONY: tests
 tests:
