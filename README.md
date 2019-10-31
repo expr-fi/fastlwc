@@ -1,4 +1,4 @@
-# Beating ``wc`` with less portable C
+# Beating ``wc`` with C
 
 ## Background
 
