@@ -33,23 +33,27 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 		int tid = omp_get_thread_num(),
 		    threads = omp_get_num_threads();
 		for (size_t i = 0, block; (block = i * threads + tid) < blocks; ++i) {
-			wcount_state_t state = (block > 0 && !isspace(addr[block * BLOCK_SIZE - 1])
-			                        ? WCOUNT_CONTINUE : WCOUNT_BOUNDARY);
+			lcount_state lstate = LCOUNT_INITIAL;
+			wcount_state wstate = (block > 0 && !isspace(addr[block * BLOCK_SIZE - 1])
+			                       ? WCOUNT_CONTINUE : WCOUNT_INITIAL);
 			SIMD_VEC *vp = (SIMD_VEC*)&addr[block * BLOCK_SIZE];
 			for (int j = 0; j < SLICES_PER_BLOCK; ++j, ++vp) {
-				wcount += count_words(*vp, &state);
-				lcount += count_lines(*vp);
+				lcount += count_lines(*vp, &lstate);
+				wcount += count_words(*vp, &wstate);
 			}
+			lcount += count_lines_final(&lstate);
+			wcount += count_words_final(&wstate);
 		}
 	}
 
 	size_t rem = size - blocks * BLOCK_SIZE;
-	wcount_state_t state = (blocks > 0 && !isspace(addr[blocks * BLOCK_SIZE - 1])
-	                        ? WCOUNT_CONTINUE : WCOUNT_BOUNDARY);
+	lcount_state lstate = LCOUNT_INITIAL;
+	wcount_state wstate = (blocks > 0 && !isspace(addr[blocks * BLOCK_SIZE - 1])
+	                       ? WCOUNT_CONTINUE : WCOUNT_INITIAL);
 	SIMD_VEC *vp = (SIMD_VEC*)&addr[blocks * BLOCK_SIZE];
 	while (rem >= sizeof(SIMD_VEC)) {
-		wcount += count_words(*vp, &state);
-		lcount += count_lines(*vp);
+		lcount += count_lines(*vp, &lstate);
+		wcount += count_words(*vp, &wstate);
 		rem -= sizeof(SIMD_VEC);
 		vp++;
 	}
@@ -58,10 +62,12 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 		SIMD_VEC buf;
 		memcpy(&buf, vp, rem);
 		memset((char*)&buf + rem, ' ', sizeof(SIMD_VEC) - rem);
-		wcount += count_words(buf, &state);
-		lcount += count_lines(buf);
+		lcount += count_lines(buf, &lstate);
+		wcount += count_words(buf, &wstate);
 	}
-
+	
+	lcount += count_lines_final(&lstate);
+	wcount += count_words_final(&wstate);
 	return (struct lwcount){ lcount, wcount };
 }
 

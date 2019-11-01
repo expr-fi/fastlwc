@@ -41,21 +41,22 @@ int main(int argc, char *argv[])
 	       wcount = 0,
 	       ccount = 0,
 	       rem = 0;
-	wcount_state_t state = WCOUNT_BOUNDARY;
+	lcount_state lstate = LCOUNT_INITIAL;
+	wcount_state wstate = WCOUNT_INITIAL;
 
 	while ((len = read(fd, (char*)buf + rem, BUFSIZE - rem))) {
 		if (len < 0) {
 			perror("fastlwc: read");
 			exit(EXIT_FAILURE);
 		}
-
+		
 		rem += len;
 		ccount += len;
 
 		SIMD_VEC *vp = buf;
 		while (rem >= sizeof(SIMD_VEC)) {
-			wcount += count_words(*vp, &state);
-			lcount += count_lines(*vp);
+			lcount += count_lines(*vp, &lstate);
+			wcount += count_words(*vp, &wstate);
 
 			rem -= sizeof(SIMD_VEC);
 			vp++;
@@ -68,9 +69,12 @@ int main(int argc, char *argv[])
 	if (rem) {
 		memset((char*)buf + rem, ' ', sizeof(SIMD_VEC) - rem);
 		SIMD_VEC *vp = buf;
-		wcount += count_words(*vp, &state);
-		lcount += count_lines(*vp);
+		lcount += count_lines(*vp, &lstate);
+		wcount += count_words(*vp, &wstate);
 	}
+	
+	lcount += count_lines_final(&lstate);
+	wcount += count_words_final(&wstate);
 
 	printf(" %7zu %7zu %7zu %s\n", lcount, wcount, ccount, argv[1]);
 

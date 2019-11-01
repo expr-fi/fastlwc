@@ -22,7 +22,8 @@ derivatives, do.
 As the purpose of this demo is not to supplant any *wc*, I consider this matter
 unimportant, but nevertheless our reference is the latter. Also out of scope
 are support for locales other than POSIX (i.e. supports ASCII white space only,
-and with that limitation, ASCII-compatible inputs, e.g. UTF-8).
+and with that limitation, ASCII-compatible inputs, e.g. UTF-8), in which the
+comparisons below are run.
 
 ## About the files
 
