@@ -40,7 +40,7 @@ struct lwcount count(unsigned char *restrict addr, size_t rem)
 		lcount += count_lines(buf, &lstate);
 		wcount += count_words(buf, &wstate);
 	}
-	
+
 	lcount += count_lines_final(&lstate);
 	wcount += count_words_final(&wstate);
 	return (struct lwcount){ lcount, wcount };

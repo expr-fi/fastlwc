@@ -165,13 +165,13 @@ SIMD_INLINE int count_words(SIMD_VEC vec, wcount_state *state)
 	SIMD_VEC eqws = SIMD_CMPEQ8(SIMD_SHUFFLE(SIMD_SHUFSRC_WS(), vec), vec);
 #else
 	SIMD_VEC lws = SIMD_CMPGT8(SIMD_ADD8(vec, SIMD_SET8(113)), SIMD_SET8(121)),
-	         eqws = SIMD_OR(lws, SIMD_CMPEQ8(vec, SIMD_SET8(' ')));  
+	         eqws = SIMD_OR(lws, SIMD_CMPEQ8(vec, SIMD_SET8(' ')));
 #endif
 	SIMD_VEC nonws = SIMD_CMPEQ8(eqws, SIMD_SETZERO()),
 	         tmp =  SIMD_OR(SIMD_SHLB(nonws, 1),
 	                        _mm_insert_epi16(SIMD_SETZERO(), state->wcontinue, 0)),
 	         wstarts = SIMD_ANDNOT(tmp, nonws);
-	
+
 	state->vwcount = SIMD_SUB8(state->vwcount, wstarts);
 	state->wcontinue = _mm_extract_epi16(nonws, 7) >> 8;
 	state->iterations++;

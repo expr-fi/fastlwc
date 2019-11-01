@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 			perror("fastlwc: read");
 			exit(EXIT_FAILURE);
 		}
-		
+
 		rem += len;
 		ccount += len;
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 		lcount += count_lines(*vp, &lstate);
 		wcount += count_words(*vp, &wstate);
 	}
-	
+
 	lcount += count_lines_final(&lstate);
 	wcount += count_words_final(&wstate);
 

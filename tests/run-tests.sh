@@ -11,7 +11,7 @@ invalid_result() {
 }
 
 rm_tmpdir() {
-	test "$tmpdir/" && rm -r "$tmpdir/"
+	rm -r "$tmpdir"
 }
 
 sde_arch() {
