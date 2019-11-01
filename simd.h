@@ -99,7 +99,7 @@ SIMD_INLINE int count_words(SIMD_VEC vec, wcount_state_t *state)
 	return 0;
 }
 #elif (defined(__AVX512F__) && defined(__AVX512BW__)) \
-	|| defined(__AVX2__) || defined(__SSSE3__)
+      || defined(__AVX2__) || defined(__SSSE3__)
 SIMD_INLINE int count_lines(SIMD_VEC vec)
 {
 	return SIMD_MASK_POPCNT(SIMD_CMPEQ8_MASK(vec, SIMD_SET8('\n')));
@@ -107,7 +107,6 @@ SIMD_INLINE int count_lines(SIMD_VEC vec)
 SIMD_INLINE int count_words(SIMD_VEC vec, wcount_state_t *state)
 {
 	SIMD_MASK wbits = ~SIMD_CMPEQ8_MASK(SIMD_SHUFFLE(SIMD_SHUFSRC_WS(), vec), vec);
-	//int words = SIMD_MASK_POPCNT((wbits & ~((wbits << 1))) >> wcontinue);
 	int words = SIMD_MASK_POPCNT(wbits & ~((wbits << 1) + *state));
 	*state = wbits >> (sizeof(SIMD_VEC) - 1);
 	return words;
