@@ -14,41 +14,41 @@ TARGETS += bin/bsd-wc bin/native-spec
 test: $(TARGETS)
 	./run-tests.sh $(shell bin/native-spec)
 
-bin/nosimd/%: ../%.c ../simd.c ../simd.h
+bin/nosimd/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_NOSIMD) $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_NOSIMD) $< -o $@ $(LDFLAGS)
 
-bin/sse2/%: ../%.c ../simd.c ../simd.c ../simd.h
+bin/sse2/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_SSE2) $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_SSE2) $< -o $@ $(LDFLAGS)
 
-bin/ssse3/%: ../%.c ../simd.c ../simd.h
+bin/ssse3/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_SSSE3) $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_SSSE3) $< -o $@ $(LDFLAGS)
 
-bin/avx/%: ../%.c ../simd.c ../simd.h
+bin/avx/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_AVX) $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_AVX) $< -o $@ $(LDFLAGS)
 
-bin/avx-popcnt/%: ../%.c ../simd.c ../simd.h
+bin/avx-popcnt/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_AVX) -DSIMD_USE_POPCNT $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_AVX) -DSIMD_USE_POPCNT $< -o $@ $(LDFLAGS)
 
-bin/avx2/%: ../%.c ../simd.c ../simd.h
+bin/avx2/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_AVX2) $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_AVX2) $< -o $@ $(LDFLAGS)
 
-bin/avx2-popcnt/%: ../%.c ../simd.c ../simd.h
+bin/avx2-popcnt/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_AVX2) -DSIMD_USE_POPCNT $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_AVX2) -DSIMD_USE_POPCNT $< -o $@ $(LDFLAGS)
 
-bin/avx512/%: ../%.c ../simd.c ../simd.h
+bin/avx512/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_AVX512) $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_AVX512) $< -o $@ $(LDFLAGS)
 
-bin/avx512-popcnt/%: ../%.c ../simd.c ../simd.h
+bin/avx512-popcnt/%: ../%.c ../simd.h
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS_AVX512) -DSIMD_USE_POPCNT $< ../simd.c -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS_AVX512) -DSIMD_USE_POPCNT $< -o $@ $(LDFLAGS)
 
 bin/bsd-wc: ../bsd-wc.c
 	@mkdir -p $(@D)

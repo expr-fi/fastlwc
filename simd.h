@@ -4,10 +4,6 @@
 #include <ctype.h>
 #include <stdint.h>
 
-#ifndef SIMD_INLINE
-#define SIMD_INLINE inline
-#endif
-
 #if !defined(NO_SIMD) && defined(__AVX512F__) && defined(__AVX512BW__)
 #include <immintrin.h>
 #include <nmmintrin.h>
@@ -25,16 +21,16 @@
 #define simd_cmpws_mask_i8(a)      _cvtmask64_u64(simd_cmpws_kmask_i8(a))
 typedef __m512i simd_vector;
 typedef uint64_t simd_mask;
-SIMD_INLINE __mmask64 simd_cmpws_kmask_i8(simd_vector a)
+static inline __mmask64 simd_cmpws_kmask_i8(simd_vector a)
 {
 	simd_vector shuffle_src = _mm512_set_epi64(0x0d0c0b0a0900, 0x20,
-                                               0x0d0c0b0a0900, 0x20,
-                                               0x0d0c0b0a0900, 0x20,
-                                               0x0d0c0b0a0900, 0x20);
+	                                           0x0d0c0b0a0900, 0x20,
+	                                           0x0d0c0b0a0900, 0x20,
+	                                           0x0d0c0b0a0900, 0x20);
 	return simd_cmpeq_kmask_i8(_mm512_shuffle_epi8(shuffle_src, a), a);
 }
 // shift a left by 1 byte, shifting in byte from the end of b
-SIMD_INLINE simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
+static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 {
 	__m512i idx = _mm512_setr_epi64(14, 15, 0, 1, 2, 3, 4, 5);
 	return _mm512_alignr_epi8(a, _mm512_permutex2var_epi64(a, idx, b), 15);
@@ -55,14 +51,14 @@ SIMD_INLINE simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #define simd_cmpws_mask_i8(a)     _mm256_movemask_epi8(simd_cmpws_i8(a))
 typedef __m256i simd_vector;
 typedef uint32_t simd_mask;
-SIMD_INLINE simd_vector simd_cmpws_i8(simd_vector a)
+static inline simd_vector simd_cmpws_i8(simd_vector a)
 {
 	simd_vector shuffle_src = _mm256_set_epi64x(0x0d0c0b0a0900, 0x20,
 	                                            0x0d0c0b0a0900, 0x20);
 	return simd_cmpeq_i8(_mm256_shuffle_epi8(shuffle_src, a), a);
 }
 // shift a left by 1 byte, shifting in byte from the end of b
-SIMD_INLINE simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
+static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 {
 	return _mm256_alignr_epi8(a, _mm256_permute2x128_si256(b, a, 0x21), 15);
 }
@@ -86,7 +82,7 @@ SIMD_INLINE simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #endif
 typedef __m128i simd_vector;
 typedef uint16_t simd_mask;
-SIMD_INLINE simd_vector simd_cmpws_i8(simd_vector a)
+static inline simd_vector simd_cmpws_i8(simd_vector a)
 {
 #if defined(__AVX__) || defined(__SSSE3__)
 	simd_vector shuffle_src = _mm_set_epi64x(0x0d0c0b0a0900, 0x20);
@@ -98,7 +94,7 @@ SIMD_INLINE simd_vector simd_cmpws_i8(simd_vector a)
 #endif
 }
 // shift a left by 1 byte, shifting in byte from the end of b
-SIMD_INLINE simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
+static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 {
 #if defined(__AVX__) || defined(__SSSE3__)
 	return _mm_alignr_epi8(a, b, 15);
@@ -122,23 +118,23 @@ typedef _Bool simd_mask;
 typedef enum { LCOUNT_INITIAL } lcount_state;
 typedef enum { WCOUNT_CONTINUE, WCOUNT_INITIAL } wcount_state;
 
-SIMD_INLINE uint64_t count_lines_final(lcount_state *state)
+static inline uint64_t count_lines_final(lcount_state *state)
 {
 	(void)state;
 	return 0;
 }
-SIMD_INLINE uint64_t count_words_final(wcount_state *state)
+static inline uint64_t count_words_final(wcount_state *state)
 {
 	(void)state;
 	return 0;
 }
 
-SIMD_INLINE int count_lines(simd_vector vec, lcount_state *state)
+static inline int count_lines(simd_vector vec, lcount_state *state)
 {
 	(void)state;
 	return vec == '\n';
 }
-SIMD_INLINE int count_words(simd_vector vec, wcount_state *state)
+static inline int count_words(simd_vector vec, wcount_state *state)
 {
 	if (!isspace(vec)) {
 		if (*state == WCOUNT_INITIAL) {
@@ -156,24 +152,24 @@ SIMD_INLINE int count_words(simd_vector vec, wcount_state *state)
 typedef enum { LCOUNT_INITIAL } lcount_state;
 typedef enum { WCOUNT_CONTINUE, WCOUNT_INITIAL } wcount_state;
 
-SIMD_INLINE uint64_t count_lines_final(lcount_state *state)
+static inline uint64_t count_lines_final(lcount_state *state)
 {
 	(void)state;
 	return 0;
 }
-SIMD_INLINE uint64_t count_words_final(wcount_state *state)
+static inline uint64_t count_words_final(wcount_state *state)
 {
 	(void)state;
 	return 0;
 }
 
-SIMD_INLINE int count_lines(simd_vector vec, lcount_state *state)
+static inline int count_lines(simd_vector vec, lcount_state *state)
 {
 	(void)state;
 	simd_mask lfmask = simd_cmpeq_mask_i8(vec, simd_set_i8('\n'));
 	return simd_mask_popcnt(lfmask);
 }
-SIMD_INLINE int count_words(simd_vector vec, wcount_state *state)
+static inline int count_words(simd_vector vec, wcount_state *state)
 {
 	simd_mask wsmask = simd_cmpws_mask_i8(vec),
 	          first_chars_mask = ~wsmask & ((wsmask << 1) + *state);
@@ -199,7 +195,7 @@ typedef struct {
 #define WCOUNT_CONTINUE \
 	(wcount_state){ simd_setzero(), simd_setzero(), simd_setzero(), 0 }
 
-SIMD_INLINE uint64_t count_lines_final(lcount_state *state)
+static inline uint64_t count_lines_final(lcount_state *state)
 {
 	state->count = simd_add_i64(state->count,
 	                            simd_sad_u8(state->vcount, simd_setzero()));
@@ -209,7 +205,7 @@ SIMD_INLINE uint64_t count_lines_final(lcount_state *state)
 		sum += ((uint64_t*)&state->count)[i];
 	return sum;
 }
-SIMD_INLINE uint64_t count_words_final(wcount_state *state)
+static inline uint64_t count_words_final(wcount_state *state)
 {
 	state->count = simd_add_i64(state->count,
 	                            simd_sad_u8(state->vcount, simd_setzero()));
@@ -220,7 +216,7 @@ SIMD_INLINE uint64_t count_words_final(wcount_state *state)
 	return sum;
 }
 
-SIMD_INLINE int count_lines(simd_vector vec, lcount_state *state)
+static inline int count_lines(simd_vector vec, lcount_state *state)
 {
 	simd_vector is_line_feed = simd_cmpeq_i8(vec, simd_set_i8('\n'));
 	// is_line_feed has a value of -1 for line feeds, 0 otherwise
@@ -235,7 +231,7 @@ SIMD_INLINE int count_lines(simd_vector vec, lcount_state *state)
 	}
 	return 0;
 }
-SIMD_INLINE int count_words(simd_vector vec, wcount_state *state)
+static inline int count_words(simd_vector vec, wcount_state *state)
 {
 	simd_vector eqws = simd_cmpws_i8(vec),
 	            andmsk = simd_shl1_from_i8(eqws, state->prev_eqws),
