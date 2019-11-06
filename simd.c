@@ -1,2 +1,2 @@
-#define SIMD_IMPL
+#define SIMD_INLINE
 #include "simd.h"

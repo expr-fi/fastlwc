@@ -25,18 +25,18 @@ struct lwcount count(unsigned char *restrict addr, size_t rem)
 	lcount_state lstate = LCOUNT_INITIAL;
 	wcount_state wstate = WCOUNT_INITIAL;
 
-	SIMD_VEC *vp = (SIMD_VEC*)addr;
-	while (rem >= sizeof(SIMD_VEC)) {
+	simd_vector *vp = (simd_vector*)addr;
+	while (rem >= sizeof(simd_vector)) {
 		lcount += count_lines(*vp, &lstate);
 		wcount += count_words(*vp, &wstate);
-		rem -= sizeof(SIMD_VEC);
+		rem -= sizeof(simd_vector);
 		vp++;
 	}
 
 	if (rem > 0) {
-		SIMD_VEC buf;
+		simd_vector buf;
 		memcpy(&buf, vp, rem);
-		memset((char*)&buf + rem, ' ', sizeof(SIMD_VEC) - rem);
+		memset((char*)&buf + rem, ' ', sizeof(simd_vector) - rem);
 		lcount += count_lines(buf, &lstate);
 		wcount += count_words(buf, &wstate);
 	}

@@ -15,7 +15,7 @@
 #include "simd.h"
 
 #define BLOCK_SIZE (32 * 32 * 1024)
-#define SLICES_PER_BLOCK (int)(BLOCK_SIZE / sizeof(SIMD_VEC))
+#define SLICES_PER_BLOCK (int)(BLOCK_SIZE / sizeof(simd_vector))
 
 struct lwcount
 {
@@ -36,7 +36,7 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 			lcount_state lstate = LCOUNT_INITIAL;
 			wcount_state wstate = (block > 0 && !isspace(addr[block * BLOCK_SIZE - 1])
 			                       ? WCOUNT_CONTINUE : WCOUNT_INITIAL);
-			SIMD_VEC *vp = (SIMD_VEC*)&addr[block * BLOCK_SIZE];
+			simd_vector *vp = (simd_vector*)&addr[block * BLOCK_SIZE];
 			for (int j = 0; j < SLICES_PER_BLOCK; ++j, ++vp) {
 				lcount += count_lines(*vp, &lstate);
 				wcount += count_words(*vp, &wstate);
@@ -50,18 +50,18 @@ struct lwcount count_mt(unsigned char *restrict addr, size_t size)
 	lcount_state lstate = LCOUNT_INITIAL;
 	wcount_state wstate = (blocks > 0 && !isspace(addr[blocks * BLOCK_SIZE - 1])
 	                       ? WCOUNT_CONTINUE : WCOUNT_INITIAL);
-	SIMD_VEC *vp = (SIMD_VEC*)&addr[blocks * BLOCK_SIZE];
-	while (rem >= sizeof(SIMD_VEC)) {
+	simd_vector *vp = (simd_vector*)&addr[blocks * BLOCK_SIZE];
+	while (rem >= sizeof(simd_vector)) {
 		lcount += count_lines(*vp, &lstate);
 		wcount += count_words(*vp, &wstate);
-		rem -= sizeof(SIMD_VEC);
+		rem -= sizeof(simd_vector);
 		vp++;
 	}
 
 	if (rem > 0) {
-		SIMD_VEC buf;
+		simd_vector buf;
 		memcpy(&buf, vp, rem);
-		memset((char*)&buf + rem, ' ', sizeof(SIMD_VEC) - rem);
+		memset((char*)&buf + rem, ' ', sizeof(simd_vector) - rem);
 		lcount += count_lines(buf, &lstate);
 		wcount += count_words(buf, &wstate);
 	}

@@ -60,9 +60,9 @@ user 3.74
 sys 0.36
 $ time -p bin/fastlwc big256.txt 
  32884992 280497920 1661098496 big256.txt
-real 0.24
-user 0.09
-sys 0.15
+real 0.23
+user 0.06
+sys 0.17
 $ time -p bin/fastlwc-mmap-mt big256.txt 
  32884992 280497920 1661098496 big256.txt
 real 0.12

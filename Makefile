@@ -13,10 +13,9 @@ bin/%: %.c simd.c simd.h
 
 .PHONY: tests
 tests:
-	cd tests/ && make
+	cd tests/ && $(MAKE)
 
 .PHONY: clean
 clean:
-	cd tests/ && make clean
-	rm -f $(TARGETS)
-	test -d bin && rmdir bin || true
+	cd tests/ && $(MAKE) clean
+	test -d bin && rm -r bin || true

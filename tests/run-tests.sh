@@ -54,8 +54,8 @@ done
 
 for arch; do
 	case "$arch" in
-		e-*) sde_arch "${arch#e-}";;
-		*) real_arch "$arch";;
+		e-*) sde_arch "bin/${arch#e-}";;
+		*) real_arch "bin/$arch";;
 	esac
 done
 

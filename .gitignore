@@ -1,5 +1,2 @@
 bin/
 tests/bin/
-tests/x86-64/
-tests/avx2/
-tests/avx512/

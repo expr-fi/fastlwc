@@ -13,7 +13,7 @@
 
 #include "simd.h"
 
-#define BUFSIZE (sizeof(SIMD_VEC) * 4096)
+#define BUFSIZE (sizeof(simd_vector) * 4096)
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	SIMD_VEC *buf = aligned_alloc(sizeof(SIMD_VEC), BUFSIZE);
+	simd_vector *buf = aligned_alloc(sizeof(simd_vector), BUFSIZE);
 	if (!buf) {
 		perror("fastlwc: alloc");
 		exit(EXIT_FAILURE);
@@ -53,12 +53,12 @@ int main(int argc, char *argv[])
 		rem += len;
 		ccount += len;
 
-		SIMD_VEC *vp = buf;
-		while (rem >= sizeof(SIMD_VEC)) {
+		simd_vector *vp = buf;
+		while (rem >= sizeof(simd_vector)) {
 			lcount += count_lines(*vp, &lstate);
 			wcount += count_words(*vp, &wstate);
 
-			rem -= sizeof(SIMD_VEC);
+			rem -= sizeof(simd_vector);
 			vp++;
 		}
 
@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 	}
 
 	if (rem) {
-		memset((char*)buf + rem, ' ', sizeof(SIMD_VEC) - rem);
-		SIMD_VEC *vp = buf;
+		memset((char*)buf + rem, ' ', sizeof(simd_vector) - rem);
+		simd_vector *vp = buf;
 		lcount += count_lines(*vp, &lstate);
 		wcount += count_words(*vp, &wstate);
 	}
