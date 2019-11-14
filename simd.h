@@ -7,27 +7,28 @@
 #if !defined(NO_SIMD) && defined(__AVX512F__) && defined(__AVX512BW__)
 #include <immintrin.h>
 #include <nmmintrin.h>
+#define simd_vector_from_mask(a)   _mm512_movm_epi8(a)
+#define simd_imask_from_mask(a)    _cvtmask64_u64(a)
 #define simd_set_i8(a)             _mm512_set1_epi8(a)
 #define simd_setzero()             _mm512_setzero_si512()
-#define simd_cmpeq_kmask_i8(a, b)  _mm512_cmpeq_epi8_mask((a), (b))
-#define simd_cmpeq_i8(a, b)        _mm512_movm_epi8(_mm512_cmpeq_epi8_mask((a), (b)))
-#define simd_cmpeq_mask_i8(a, b)   _cvtmask64_u64(_mm512_cmpeq_epi8_mask((a), (b)))
+#define simd_cmpeq_i8_mask(a, b)   _mm512_cmpeq_epi8_mask((a), (b))
 #define simd_andnot_i8(a, b)       _mm512_andnot_si512((a), (b))
 #define simd_add_i64(a, b)         _mm512_add_epi64((a), (b))
 #define simd_sub_i8(a, b)          _mm512_sub_epi8((a), (b))
 #define simd_sad_u8(a, b)          _mm512_sad_epu8((a), (b))
-#define simd_mask_popcnt(a)        _mm_popcnt_u64(a)
-#define simd_cmpws_i8(a)           _mm512_movm_epi8(simd_cmpws_kmask_i8(a))
-#define simd_cmpws_mask_i8(a)      _cvtmask64_u64(simd_cmpws_kmask_i8(a))
+#define simd_imask_popcnt(a)       _mm_popcnt_u64(a)
+#define simd_cmpeq_i8(a, b)        simd_vector_from_mask(simd_cmpeq_i8_mask((a), (b)))
+#define simd_cmpws_i8(a)           simd_vector_from_mask(simd_cmpws_i8_mask(a))
 typedef __m512i simd_vector;
-typedef uint64_t simd_mask;
-static inline __mmask64 simd_cmpws_kmask_i8(simd_vector a)
+typedef uint64_t simd_imask;
+typedef __mmask64 simd_mask;
+static inline simd_mask simd_cmpws_i8_mask(simd_vector a)
 {
 	simd_vector shuffle_src = _mm512_set_epi64(0x0d0c0b0a0900, 0x20,
 	                                           0x0d0c0b0a0900, 0x20,
 	                                           0x0d0c0b0a0900, 0x20,
 	                                           0x0d0c0b0a0900, 0x20);
-	return simd_cmpeq_kmask_i8(_mm512_shuffle_epi8(shuffle_src, a), a);
+	return simd_cmpeq_i8_mask(_mm512_shuffle_epi8(shuffle_src, a), a);
 }
 // shift a left by 1 byte, shifting in byte from the end of b
 static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
@@ -39,18 +40,21 @@ static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #elif !defined(NO_SIMD) && defined(__AVX2__)
 #include <immintrin.h>
 #include <nmmintrin.h>
+#define simd_vector_from_mask(a)  (a)
+#define simd_imask_from_mask(a)   _mm256_movemask_epi8(a)
 #define simd_set_i8(a)            _mm256_set1_epi8(a)
 #define simd_setzero()            _mm256_setzero_si256()
 #define simd_cmpeq_i8(a, b)       _mm256_cmpeq_epi8((a), (b))
-#define simd_cmpeq_mask_i8(a, b)  _mm256_movemask_epi8(_mm256_cmpeq_epi8((a), (b)))
 #define simd_andnot_i8(a, b)      _mm256_andnot_si256((a), (b))
 #define simd_add_i64(a, b)        _mm256_add_epi64((a), (b))
 #define simd_sub_i8(a, b)         _mm256_sub_epi8((a), (b))
 #define simd_sad_u8(a, b)         _mm256_sad_epu8((a), (b))
-#define simd_mask_popcnt(a)       _mm_popcnt_u32(a)
-#define simd_cmpws_mask_i8(a)     _mm256_movemask_epi8(simd_cmpws_i8(a))
+#define simd_imask_popcnt(a)      _mm_popcnt_u32(a)
+#define simd_cmpeq_i8_mask(a, b)  simd_cmpeq_i8((a), (b))
+#define simd_cmpws_i8_mask(a)     simd_cmpws_i8(a)
 typedef __m256i simd_vector;
-typedef uint32_t simd_mask;
+typedef uint32_t simd_imask;
+typedef simd_vector simd_mask;
 static inline simd_vector simd_cmpws_i8(simd_vector a)
 {
 	simd_vector shuffle_src = _mm256_set_epi64x(0x0d0c0b0a0900, 0x20,
@@ -68,20 +72,23 @@ static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #include <immintrin.h>
 #include <nmmintrin.h>
 #include <tmmintrin.h>
+#define simd_vector_from_mask(a)  (a)
+#define simd_imask_from_mask(a)   _mm_movemask_epi8(a)
 #define simd_set_i8(a)            _mm_set1_epi8(a)
 #define simd_setzero()            _mm_setzero_si128()
 #define simd_cmpeq_i8(a, b)       _mm_cmpeq_epi8((a), (b))
-#define simd_cmpeq_mask_i8(a, b)  _mm_movemask_epi8(_mm_cmpeq_epi8((a), (b)))
 #define simd_andnot_i8(a, b)      _mm_andnot_si128((a), (b))
 #define simd_add_i64(a, b)        _mm_add_epi64((a), (b))
 #define simd_sub_i8(a, b)         _mm_sub_epi8((a), (b))
 #define simd_sad_u8(a, b)         _mm_sad_epu8((a), (b))
-#define simd_cmpws_mask_i8(a)     _mm_movemask_epi8(simd_cmpws_i8(a))
+#define simd_cmpeq_i8_mask(a, b)  simd_cmpeq_i8((a), (b))
+#define simd_cmpws_i8_mask(a)     simd_cmpws_i8(a)
 #if defined(__AVX__) || defined(__POPCNT__)
-#define simd_mask_popcnt(a)       _mm_popcnt_u32((simd_mask)(a))
+#define simd_imask_popcnt(a)      _mm_popcnt_u32((simd_imask)(a))
 #endif
 typedef __m128i simd_vector;
-typedef uint16_t simd_mask;
+typedef uint16_t simd_imask;
+typedef simd_vector simd_mask;
 static inline simd_vector simd_cmpws_i8(simd_vector a)
 {
 #if defined(__AVX__) || defined(__SSSE3__)
@@ -108,7 +115,6 @@ static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #define NO_SIMD 1
 #endif
 typedef uint8_t simd_vector;
-typedef _Bool simd_mask;
 #endif
 
 
@@ -147,7 +153,7 @@ static inline int count_words(simd_vector vec, wcount_state *state)
 }
 
 //endif defined(NO_SIMD)
-#elif defined(SIMD_USE_POPCNT) && defined(simd_mask_popcnt)
+#elif defined(SIMD_USE_POPCNT) && defined(simd_imask_popcnt)
 
 typedef enum { LCOUNT_INITIAL } lcount_state;
 typedef enum { WCOUNT_CONTINUE, WCOUNT_INITIAL } wcount_state;
@@ -166,18 +172,18 @@ static inline uint64_t count_words_final(wcount_state *state)
 static inline int count_lines(simd_vector vec, lcount_state *state)
 {
 	(void)state;
-	simd_mask lfmask = simd_cmpeq_mask_i8(vec, simd_set_i8('\n'));
-	return simd_mask_popcnt(lfmask);
+	simd_mask lfmask = simd_cmpeq_i8_mask(vec, simd_set_i8('\n'));
+	return simd_imask_popcnt(simd_imask_from_mask(lfmask));
 }
 static inline int count_words(simd_vector vec, wcount_state *state)
 {
-	simd_mask wsmask = simd_cmpws_mask_i8(vec),
-	          first_chars_mask = ~wsmask & ((wsmask << 1) + *state);
-	*state = wsmask >> (sizeof(simd_vector) - 1);
-	return simd_mask_popcnt(first_chars_mask);
+	simd_imask ws = simd_imask_from_mask(simd_cmpws_i8_mask(vec)),
+	           first_chars = ~ws & ((ws << 1) + *state);
+	*state = ws >> (sizeof(simd_vector) - 1);
+	return simd_imask_popcnt(first_chars);
 }
 
-//endif defined(SIMD_USE_POPCNT) && defined(simd_mask_popcnt)
+//endif defined(SIMD_USE_POPCNT) && defined(simd_imask_popcnt)
 #else
 
 typedef struct {
@@ -231,9 +237,10 @@ static inline int count_lines(simd_vector vec, lcount_state *state)
 	}
 	return 0;
 }
-static inline int count_words(simd_vector vec, wcount_state *state)
+
+static inline int count_words_wsmask(simd_mask eqmask, wcount_state *state)
 {
-	simd_vector eqws = simd_cmpws_i8(vec),
+	simd_vector eqws = simd_vector_from_mask(eqmask),
 	            andmsk = simd_shl1_from_i8(eqws, state->prev_eqws),
 	            is_first_char = simd_andnot_i8(eqws, andmsk);
 	state->prev_eqws = eqws;
@@ -248,6 +255,11 @@ static inline int count_words(simd_vector vec, wcount_state *state)
 		state->iterations = 0;
 	}
 	return 0;
+}
+
+static inline int count_words(simd_vector vec, wcount_state *state)
+{
+	return count_words_wsmask(simd_cmpws_i8_mask(vec), state);
 }
 
 #endif

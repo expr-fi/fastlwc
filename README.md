@@ -56,8 +56,8 @@ anyway.
 
 Finally, rounding up this non-exhaustive list are the varying approaches to
 invalid multibyte sequences (when they are decoded at all, as touched
-earlier). Namely, some implementations count all undecodable bytes as non-
-whitespace characters, for both character and word counting, while others
+earlier). Namely, some implementations count all undecodable bytes as
+non-whitespace characters, for both character and word counting, while others
 ignore them likewise.
 
 All that being said, this application “averts” these issues by being far
@@ -146,3 +146,5 @@ real 0.12
 user 0.18
 sys 0.14
 ```
+
+For additional remarks, see the [utf-8 directory](utf-8/).
