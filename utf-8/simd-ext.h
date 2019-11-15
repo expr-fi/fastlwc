@@ -213,7 +213,7 @@ static inline simd_mask simd_cmpws_xmb_i8_mask(simd_vector xa, simd_vector xb)
 		ws = simd_mask_or(ws, simd_mask_and(p0p1, p2));
 	}
 
-	// check for U+2028–U+2029
+	// check for U+2000 (again...), U+2028–U+2029
 	{
 		simd_vector shuffle = simd_set128_i64(0x2928, 0);
 		simd_mask p2 = simd_cmpeq_i8_mask(simd_shuffle(shuffle, xa2), xa2);
