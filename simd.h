@@ -19,6 +19,7 @@
 #define simd_imask_popcnt(a)       _mm_popcnt_u64(a)
 #define simd_cmpeq_i8(a, b)        simd_vector_from_mask(simd_cmpeq_i8_mask((a), (b)))
 #define simd_cmpws_i8(a)           simd_vector_from_mask(simd_cmpws_i8_mask(a))
+#define simd_store(a, b)          _mm512_store_si512((a), (b))
 typedef __m512i simd_vector;
 typedef uint64_t simd_imask;
 typedef __mmask64 simd_mask;
@@ -52,6 +53,7 @@ static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #define simd_imask_popcnt(a)      _mm_popcnt_u32(a)
 #define simd_cmpeq_i8_mask(a, b)  simd_cmpeq_i8((a), (b))
 #define simd_cmpws_i8_mask(a)     simd_cmpws_i8(a)
+#define simd_store(a, b)          _mm256_store_si256((a), (b))
 typedef __m256i simd_vector;
 typedef uint32_t simd_imask;
 typedef simd_vector simd_mask;
@@ -83,6 +85,7 @@ static inline simd_vector simd_shl1_from_i8(simd_vector a, simd_vector b)
 #define simd_sad_u8(a, b)         _mm_sad_epu8((a), (b))
 #define simd_cmpeq_i8_mask(a, b)  simd_cmpeq_i8((a), (b))
 #define simd_cmpws_i8_mask(a)     simd_cmpws_i8(a)
+#define simd_store(a, b)          _mm_store_si128((a), (b))
 #if defined(__AVX__) || defined(__POPCNT__)
 #define simd_imask_popcnt(a)      _mm_popcnt_u32((simd_imask)(a))
 #endif
@@ -206,9 +209,14 @@ static inline uint64_t count_lines_final(lcount_state *state)
 	state->count = simd_add_i64(state->count,
 	                            simd_sad_u8(state->vcount, simd_setzero()));
 	state->vcount = simd_setzero();
-	int64_t sum = 0;
+	uint64_t sum = 0;
+	union {
+		simd_vector vec;
+		uint64_t u64[sizeof(simd_vector)/sizeof(uint64_t)];
+	} unpack;
+	simd_store(&unpack.vec, state->count);
 	for (int i = 0; i != sizeof(simd_vector)/sizeof(uint64_t); ++i)
-		sum += ((uint64_t*)&state->count)[i];
+		sum += unpack.u64[i];
 	return sum;
 }
 static inline uint64_t count_words_final(wcount_state *state)
@@ -216,9 +224,14 @@ static inline uint64_t count_words_final(wcount_state *state)
 	state->count = simd_add_i64(state->count,
 	                            simd_sad_u8(state->vcount, simd_setzero()));
 	state->vcount = simd_setzero();
-	int64_t sum = 0;
+	uint64_t sum = 0;
+	union {
+		simd_vector vec;
+		uint64_t u64[sizeof(simd_vector)/sizeof(uint64_t)];
+	} unpack;
+	simd_store(&unpack.vec, state->count);
 	for (int i = 0; i != sizeof(simd_vector)/sizeof(uint64_t); ++i)
-		sum += ((uint64_t*)&state->count)[i];
+		sum += unpack.u64[i];
 	return sum;
 }
 
