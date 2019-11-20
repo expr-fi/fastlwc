@@ -105,8 +105,7 @@ Just a sample (multiple   spaces).
 ## About the files
 
 ``fastlwc.c`` uses file I/O, can read from *stdin*  
-``fastlwc-mmap.c`` uses ``mmap`` for I/O for comparison  
-``fastlwc-mmap-mt.c`` tries to use all your CPU as well (you can control the
+``fastlwc-mt.c`` tries to use all your CPU as well (you can control the
 amount of threads with the environment variable OMP_NUM_THREADS; don't expect
 to gain much more than increased user time with SMT/Hyper-threading)  
 ``bsd-wc.c`` is the reference implementation we test against (it's basically
@@ -140,11 +139,11 @@ $ time -p bin/fastlwc big256.txt
 real 0.22
 user 0.06
 sys 0.16
-$ time -p bin/fastlwc-mmap-mt big256.txt
+$ time -p bin/fastlwc-mt big256.txt
  32884992 280497920 1661098496 big256.txt
-real 0.12
-user 0.18
-sys 0.14
+real 0.07
+user 0.10
+sys 0.18
 ```
 
 For additional remarks, see the [utf-8 directory](utf-8/).

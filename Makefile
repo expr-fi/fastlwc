@@ -1,9 +1,10 @@
 CFLAGS += -std=gnu11 -Wall -Wextra -pedantic -march=native -Ofast
-TARGETS = bin/bsd-wc bin/fastlwc bin/fastlwc-mmap bin/fastlwc-mmap-mt
+TARGETS = bin/bsd-wc bin/fastlwc bin/fastlwc-mt
 
 all: $(TARGETS)
 
-bin/fastlwc-mmap-mt: fastlwc-mmap-mt.c simd.h
+
+bin/fastlwc-mt: fastlwc-mt.c simd.h
 	@mkdir -p bin
 	$(CC) $(CFLAGS) -fopenmp $< -o $@ $(LDFLAGS)
 

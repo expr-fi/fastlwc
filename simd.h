@@ -127,6 +127,11 @@ typedef uint8_t simd_vector;
 typedef enum { LCOUNT_INITIAL } lcount_state;
 typedef enum { WCOUNT_CONTINUE, WCOUNT_INITIAL } wcount_state;
 
+static inline void wcount_state_set(wcount_state *state, bool wcontinue)
+{
+	*state = wcontinue ? WCOUNT_CONTINUE : WCOUNT_INITIAL;
+}
+
 static inline uint64_t count_lines_final(lcount_state *state)
 {
 	(void)state;
@@ -160,6 +165,11 @@ static inline int count_words(simd_vector vec, wcount_state *state)
 
 typedef enum { LCOUNT_INITIAL } lcount_state;
 typedef enum { WCOUNT_CONTINUE, WCOUNT_INITIAL } wcount_state;
+
+static inline void wcount_state_set(wcount_state *state, bool wcontinue)
+{
+	*state = wcontinue ? WCOUNT_CONTINUE : WCOUNT_INITIAL;
+}
 
 static inline uint64_t count_lines_final(lcount_state *state)
 {
@@ -203,6 +213,11 @@ typedef struct {
 	(wcount_state){ simd_setzero(), simd_setzero(), simd_set_i8(-1), 0 }
 #define WCOUNT_CONTINUE \
 	(wcount_state){ simd_setzero(), simd_setzero(), simd_setzero(), 0 }
+
+static inline void wcount_state_set(wcount_state *state, bool wcontinue)
+{
+	state->prev_eqws = wcontinue ? simd_setzero() : simd_set_i8(-1);
+}
 
 static inline uint64_t count_lines_final(lcount_state *state)
 {

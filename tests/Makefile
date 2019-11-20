@@ -1,4 +1,4 @@
-CFLAGS = -std=gnu11 -O0 -Wall -Wextra -fopenmp
+CFLAGS = -std=gnu11 -Ofast -Wall -Wextra -fopenmp
 CFLAGS_NOSIMD = $(CFLAGS) -DNO_SIMD
 CFLAGS_SSE2   = $(CFLAGS) -msse -msse2
 CFLAGS_SSSE3  = $(CFLAGS_SSE2) -msse3 -mssse3
@@ -7,7 +7,7 @@ CFLAGS_AVX2   = $(CFLAGS_AVX) -mavx2
 CFLAGS_AVX512 = $(CFLAGS_AVX2) -mavx512f -mavx512bw
 
 TESTS    = nosimd sse2 ssse3 avx avx-popcnt avx2 avx2-popcnt avx512 avx512-popcnt
-BINARIES = fastlwc fastlwc-mmap fastlwc-mmap-mt
+BINARIES = fastlwc fastlwc-mt
 TARGETS  = $(foreach dir,$(TESTS),$(addprefix bin/$(dir)/,$(BINARIES)))
 TARGETS += bin/bsd-wc bin/native-spec
 
