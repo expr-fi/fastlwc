@@ -104,10 +104,10 @@ Just a sample (multiple   spaces).
 
 ## About the files
 
-``fastlwc.c`` uses file I/O, can read from *stdin*  
-``fastlwc-mt.c`` tries to use all your CPU as well (you can control the
-amount of threads with the environment variable OMP_NUM_THREADS; don't expect
-to gain much more than increased user time with SMT/Hyper-threading)  
+``fastlwc.c`` (single-threaded)  
+``fastlwc-mt.c`` uses multiple threads with seekable inputs (you
+can control the number of threads used by setting the environment variable
+OMP_NUM_THREADS; don't expect to make any real gains with SMT/Hyper-threading)  
 ``bsd-wc.c`` is the reference implementation we test against (it's basically
 *wc* from opensource.apple.com)  
 
