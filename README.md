@@ -2,7 +2,7 @@
 
 ## Background
 
-As you're here, you've probably [seen][p1] [those][p2] [posts][p3].
+As you're here, you've [probably][p4] [seen][p1] [those][p2] [posts][p3].
 Arguably, this one might be a bit more boring, as there's no brief
 introduction to a weird language here; it's all just the C you already know
 (or don't), and the algorithm used is just as simple as the task at hand
@@ -12,6 +12,7 @@ goal here is to find out exactly how fast is fast when it comes to ``wc``.
 [p1]: https://chrispenner.ca/posts/wc
 [p2]: https://ummaycoc.github.io/wc.apl/
 [p3]: https://futhark-lang.org/blog/2019-10-25-beating-c-with-futhark-on-gpu.html
+[p4]: https://ajeetdsouza.github.io/blog/posts/beating-c-with-70-lines-of-go/
 
 ## A word on words, or the differences between actual ``wc`` implementations
 
